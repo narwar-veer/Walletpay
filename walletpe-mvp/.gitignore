@@ -1,0 +1,152 @@
+# =============================================================================
+# WalletPe MVP Service-Level .gitignore
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Java & Compiled Artifacts
+# -----------------------------------------------------------------------------
+*.class
+*.war
+*.ear
+*.nar
+*.rar
+hs_err_pid*
+replay_pid*
+
+# -----------------------------------------------------------------------------
+# 2. Build Tools (Maven & Gradle)
+# -----------------------------------------------------------------------------
+target/
+**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+build/
+**/build/
+
+# -----------------------------------------------------------------------------
+# 3. IDEs & Editors
+# -----------------------------------------------------------------------------
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+**/out/
+
+# Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+bin/
+**/bin/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbproject/genfiles.properties
+
+# -----------------------------------------------------------------------------
+# 4. Environment Variables & Secrets (Critical for FinTech / Payment Platform)
+# -----------------------------------------------------------------------------
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Credentials & Keys
+*.pem
+*.key
+*.pkcs12
+*.pfx
+*.p12
+*.jks
+*.keystore
+credentials.json
+client_secret*.json
+service-account*.json
+/secrets/
+config/secrets/*
+!config/secrets/.gitkeep
+
+# -----------------------------------------------------------------------------
+# 5. Local Infrastructure & Database Volumes
+# -----------------------------------------------------------------------------
+postgres-data/
+pgdata/
+redis-data/
+kafka-data/
+zookeeper-data/
+*.sqlite
+*.sqlite3
+*.db
+
+# -----------------------------------------------------------------------------
+# 6. Logs & Diagnostics
+# -----------------------------------------------------------------------------
+logs/
+**/logs/
+*.log
+
+# -----------------------------------------------------------------------------
+# 7. Testing & Code Coverage
+# -----------------------------------------------------------------------------
+jacoco.exec
+coverage/
+.nyc_output/
+test-output/
+
+# -----------------------------------------------------------------------------
+# 8. Operating System Specific
+# -----------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# -----------------------------------------------------------------------------
+# 9. Temporary & Backup Files
+# -----------------------------------------------------------------------------
+*.tmp
+*.bak
+*.swp
+*.swo
+scratch/
+tmp/
+temp/
