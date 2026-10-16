@@ -1,11 +1,10 @@
-package main.java.com.walletpe.notification.domain.models;
+package com.walletpe.notification.domain.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.java.com.walletpe.notification.domain.enums.NotificationChannel;
-import main.java.com.walletpe.user.domain.models.User;
+import com.walletpe.notification.domain.enums.NotificationChannel;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -32,9 +31,9 @@ public class NotificationPreference {
     @Column(name = "preference_id", nullable = false, updatable = false)
     private UUID preferenceId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    // User Service owns user records. This is an external reference, not a foreign key.
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "channel", nullable = false)

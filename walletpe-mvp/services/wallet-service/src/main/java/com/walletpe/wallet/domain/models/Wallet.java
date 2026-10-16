@@ -1,6 +1,7 @@
-package main.java.com.walletpe.wallet.domain.models;
+package com.walletpe.wallet.domain.models;
 
 import jakarta.persistence.*;
+import com.walletpe.wallet.domain.enums.WalletStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,9 +24,9 @@ public class Wallet {
     @Column(name = "wallet_id", nullable = false, updatable = false)
     private UUID walletId;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    // User Service owns user records. This is an external reference, not a foreign key.
+    @Column(name = "user_id", nullable = false, unique = true)
+    private UUID userId;
 
     @Column(name = "balance", nullable = false, precision = 19, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;

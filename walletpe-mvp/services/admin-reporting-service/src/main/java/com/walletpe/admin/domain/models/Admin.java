@@ -1,12 +1,11 @@
-package main.java.com.walletpe.admin.domain.models;
+package com.walletpe.admin.domain.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.java.com.walletpe.admin.domain.enums.AdminRole;
-import main.java.com.walletpe.admin.domain.enums.AdminStatus;
-import main.java.com.walletpe.user.domain.models.User;
+import com.walletpe.admin.domain.enums.AdminRole;
+import com.walletpe.admin.domain.enums.AdminStatus;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -25,9 +24,9 @@ public class Admin {
     @Column(name = "admin_id", nullable = false, updatable = false)
     private UUID adminId;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    // User Service owns user records. This is an external reference, not a foreign key.
+    @Column(name = "user_id", nullable = false, unique = true)
+    private UUID userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

@@ -1,11 +1,11 @@
-package main.java.com.walletpe.audit.domain.models;
+package com.walletpe.audit.domain.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.java.com.walletpe.audit.domain.enums.ActorType;
-import main.java.com.walletpe.audit.domain.enums.AuditResult;
+import com.walletpe.audit.domain.enums.ActorType;
+import com.walletpe.audit.domain.enums.AuditResult;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

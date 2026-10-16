@@ -1,0 +1,2 @@
+# Intentionally empty: PostgreSQL runs on the host and is managed through pgAdmin.
+services: {}

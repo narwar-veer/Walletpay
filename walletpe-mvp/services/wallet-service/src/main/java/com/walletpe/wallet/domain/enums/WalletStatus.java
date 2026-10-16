@@ -1,7 +1,6 @@
-package main.java.com.walletpe.wallet.domain.enums;
+package com.walletpe.wallet.domain.enums;
 
 public enum WalletStatus {
      ACTIVE,
-     FROZEN,
-     CLOSED
+     BLOCKED
 }

@@ -1,11 +1,10 @@
-package main.java.com.walletpe.ledger.domain.models;
+package com.walletpe.ledger.domain.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.java.com.walletpe.ledger.domain.enums.LedgerEntryType;
-import main.java.com.walletpe.wallet.domain.models.Wallet;
+import com.walletpe.ledger.domain.enums.LedgerEntryType;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -28,9 +27,9 @@ public class LedgerEntry {
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction transaction;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "wallet_id", nullable = false)
-    private Wallet wallet;
+    // Wallet Service owns wallets. This is an external reference, not a foreign key.
+    @Column(name = "wallet_id", nullable = false)
+    private UUID walletId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "entry_type", nullable = false)

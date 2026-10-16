@@ -1,4 +1,4 @@
-package main.java.com.walletpe.admin.domain.models;
+package com.walletpe.admin.domain.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;

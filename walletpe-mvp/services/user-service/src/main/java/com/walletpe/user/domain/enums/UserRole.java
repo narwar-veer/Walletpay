@@ -1,4 +1,4 @@
-package main.java.com.walletpe.user.domain.enums;
+package com.walletpe.user.domain.enums;
 
 public enum UserRole {
     USER,

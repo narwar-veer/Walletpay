@@ -1,10 +1,10 @@
-package main.java.com.walletpe.admin.domain.models;
+package com.walletpe.admin.domain.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.java.com.walletpe.admin.domain.enums.ReportStatus;
+import com.walletpe.admin.domain.enums.ReportStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

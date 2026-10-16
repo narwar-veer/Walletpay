@@ -1,6 +1,8 @@
-package main.java.com.walletpe.ledger.domain.models;
+package com.walletpe.ledger.domain.models;
 
 import jakarta.persistence.*;
+import com.walletpe.ledger.domain.enums.TransactionStatus;
+import com.walletpe.ledger.domain.enums.TransactionType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,15 +14,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-    name = "transactions",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "uk_transaction_idempotency_key",
-            columnNames = "idempotency_key"
-        )
-    }
-)
+@Table(name = "transactions")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,16 +25,23 @@ public class Transaction {
     @Column(name = "transaction_id", nullable = false, updatable = false)
     private UUID transactionId;
 
-    @Column(name = "idempotency_key", nullable = false, unique = true)
+    // Uniqueness is enforced by IdempotencyRecord using requester_user_id + key.
+    @Column(name = "idempotency_key", nullable = false)
     private String idempotencyKey;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "sender_wallet_id", nullable = false)
-    private Wallet senderWallet;
+    @Column(name = "requester_user_id", nullable = false)
+    private UUID requesterUserId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "receiver_wallet_id", nullable = false)
-    private Wallet receiverWallet;
+    // Wallet Service owns wallets. These are external references, not foreign keys.
+    @Column(name = "sender_wallet_id")
+    private UUID senderWalletId;
+
+    @Column(name = "recipient_wallet_id", nullable = false)
+    private UUID recipientWalletId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type", nullable = false)
+    private TransactionType transactionType;
 
     @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
@@ -51,6 +52,9 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private TransactionStatus status;
+
+    @Column(name = "reversal_of_transaction_id")
+    private UUID reversalOfTransactionId;
 
     @Column(name = "failure_reason", columnDefinition = "TEXT")
     private String failureReason;

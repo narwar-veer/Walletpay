@@ -1,10 +1,10 @@
-package main.java.com.walletpe.ledger.domain.models;
+package com.walletpe.ledger.domain.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.java.com.walletpe.ledger.domain.enums.OutboxStatus;
+import com.walletpe.ledger.domain.enums.OutboxStatus;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

@@ -1,0 +1,16 @@
+server:
+  port: ${SERVER_PORT:8086}
+spring:
+  application:
+    name: audit-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:walletpe_audit}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:update}
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+management.endpoints.web.exposure.include: health,info

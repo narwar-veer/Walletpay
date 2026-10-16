@@ -1,13 +1,12 @@
-package main.java.com.walletpe.notification.domain.models;
+package com.walletpe.notification.domain.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.java.com.walletpe.notification.domain.enums.NotificationChannel;
-import main.java.com.walletpe.notification.domain.enums.NotificationStatus;
-import main.java.com.walletpe.notification.domain.enums.NotificationType;
-import main.java.com.walletpe.user.domain.models.User;
+import com.walletpe.notification.domain.enums.NotificationChannel;
+import com.walletpe.notification.domain.enums.NotificationStatus;
+import com.walletpe.notification.domain.enums.NotificationType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -26,9 +25,9 @@ public class Notification {
     @Column(name = "notification_id", nullable = false, updatable = false)
     private UUID notificationId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    // User Service owns user records. This is an external reference, not a foreign key.
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)

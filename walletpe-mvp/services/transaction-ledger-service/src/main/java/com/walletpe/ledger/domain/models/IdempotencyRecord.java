@@ -1,6 +1,7 @@
-package main.java.com.walletpe.ledger.domain.models;
+package com.walletpe.ledger.domain.models;
 
 import jakarta.persistence.*;
+import com.walletpe.ledger.domain.enums.IdempotencyStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,8 +15,8 @@ import java.util.UUID;
     name = "idempotency_records",
     uniqueConstraints = {
         @UniqueConstraint(
-            name = "uk_idempotency_key",
-            columnNames = "idempotency_key"
+            name = "uk_idempotency_requester_key",
+            columnNames = {"requester_user_id", "idempotency_key"}
         )
     }
 )
@@ -29,7 +30,10 @@ public class IdempotencyRecord {
     @Column(name = "idempotency_record_id", nullable = false, updatable = false)
     private UUID idempotencyRecordId;
 
-    @Column(name = "idempotency_key", nullable = false, unique = true)
+    @Column(name = "requester_user_id", nullable = false)
+    private UUID requesterUserId;
+
+    @Column(name = "idempotency_key", nullable = false)
     private String idempotencyKey;
 
     @Column(name = "request_hash", nullable = false)
@@ -38,8 +42,12 @@ public class IdempotencyRecord {
     @Column(name = "response_payload", columnDefinition = "TEXT")
     private String responsePayload;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private IdempotencyStatus status;
+
+    @Column(name = "transaction_id")
+    private UUID transactionId;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

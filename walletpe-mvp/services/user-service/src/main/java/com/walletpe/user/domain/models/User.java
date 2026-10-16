@@ -1,6 +1,8 @@
-package main.java.com.walletpe.user.domain.models;
+package com.walletpe.user.domain.models;
 
 import jakarta.persistence.*;
+import com.walletpe.user.domain.enums.UserRole;
+import com.walletpe.user.domain.enums.UserStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,6 +35,16 @@ public class User {
 
      @Column(name = "password_hash")
      private String passwordHash;
+
+     @Column(name = "email_verified", nullable = false)
+     private boolean emailVerified = false;
+
+     @Column(name = "mobile_verified", nullable = false)
+     private boolean mobileVerified = false;
+
+     @Enumerated(EnumType.STRING)
+     @Column(name = "role", nullable = false)
+     private UserRole role = UserRole.USER;
 
      @Enumerated(EnumType.STRING)
      @Column(name = "status", nullable = false)

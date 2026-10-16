@@ -1,4 +1,4 @@
-package main.java.com.walletpe.notification.domain.enums;
+package com.walletpe.notification.domain.enums;
 
 public enum NotificationChannel {
     IN_APP,

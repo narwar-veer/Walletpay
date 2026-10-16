@@ -1,8 +1,9 @@
-package main.java.com.walletpe.ledger.domain.enums;
+package com.walletpe.ledger.domain.enums;
 
-    public enum TransactionStatus {
-        PENDING,
-        PROCESSING,
-        SUCCESS,
-        FAILED
-    }
+public enum TransactionStatus {
+    PENDING,
+    PROCESSING,
+    SUCCESS,
+    FAILED,
+    REVERSED
+}

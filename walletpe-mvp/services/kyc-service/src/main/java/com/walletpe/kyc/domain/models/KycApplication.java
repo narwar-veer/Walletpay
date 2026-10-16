@@ -1,6 +1,8 @@
-package main.java.com.walletpe.kyc.domain.models;
+package com.walletpe.kyc.domain.models;
 
 import jakarta.persistence.*;
+import com.walletpe.kyc.domain.enums.KycStatus;
+import com.walletpe.kyc.domain.enums.RejectionReason;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,9 +24,9 @@ public class KycApplication {
      @Column(name = "kyc_id", nullable = false, updatable = false)
      private UUID kycId;
 
-     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-     @JoinColumn(name = "user_id", nullable = false)
-     private User user;
+     // User Service owns user records. This is an external reference, not a foreign key.
+     @Column(name = "user_id", nullable = false)
+     private UUID userId;
 
      @Column(name = "full_name", nullable = false)
      private String fullName;
@@ -42,8 +44,9 @@ public class KycApplication {
      @Column(name = "status", nullable = false)
      private KycStatus status;
 
-     @Column(name = "rejection_reason", columnDefinition = "TEXT")
-     private String rejectionReason;
+     @Enumerated(EnumType.STRING)
+     @Column(name = "rejection_reason")
+     private RejectionReason rejectionReason;
 
      @Column(name = "reviewed_by")
      private UUID reviewedBy;
