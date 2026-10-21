@@ -15,6 +15,25 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_STARTTLS_ENABLE:true}
+            required: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+app:
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:noreply@walletpe.com}
 management:
   endpoints:
     web:

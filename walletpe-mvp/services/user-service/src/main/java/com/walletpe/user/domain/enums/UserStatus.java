@@ -1,7 +1,9 @@
 package com.walletpe.user.domain.enums;
 
 public enum UserStatus {
-     ACTIVE,
-     BLOCKED,
-     SUSPENDED
+    PENDING_EMAIL_VERIFICATION,
+    ACTIVE,
+    BLOCKED,
+    SUSPENDED,
+    CLOSED
 }

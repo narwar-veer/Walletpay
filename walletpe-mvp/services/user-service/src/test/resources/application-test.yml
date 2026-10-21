@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+jwt:
+  secret: testSuperSecretKeyForWalletPeJwtTokensMustBeAtLeast256BitsLong12345!
+  expiration-ms: 3600000
+
+otp:
+  expiration-minutes: 5
+  cooldown-seconds: 0
+  max-attempts: 3
