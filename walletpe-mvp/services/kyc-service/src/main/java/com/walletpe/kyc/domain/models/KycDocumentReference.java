@@ -1,9 +1,6 @@
 package com.walletpe.kyc.domain.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -11,9 +8,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "kyc_document_references")
-@Getter
-@Setter
-@NoArgsConstructor
 public class KycDocumentReference {
 
     @Id
@@ -41,4 +35,62 @@ public class KycDocumentReference {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    public KycDocumentReference() {}
+
+    public KycDocumentReference(KycApplication kycApplication, String documentType,
+                                String storagePath, String contentType, Long fileSize) {
+        this.kycApplication = kycApplication;
+        this.documentType = documentType;
+        this.storagePath = storagePath;
+        this.contentType = contentType;
+        this.fileSize = fileSize;
+    }
+
+    public UUID getDocumentId() {
+        return documentId;
+    }
+
+    public KycApplication getKycApplication() {
+        return kycApplication;
+    }
+
+    public void setKycApplication(KycApplication kycApplication) {
+        this.kycApplication = kycApplication;
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(String documentType) {
+        this.documentType = documentType;
+    }
+
+    public String getStoragePath() {
+        return storagePath;
+    }
+
+    public void setStoragePath(String storagePath) {
+        this.storagePath = storagePath;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }

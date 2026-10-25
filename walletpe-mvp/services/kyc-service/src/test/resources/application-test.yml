@@ -1,0 +1,42 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: kyc-service-test
+  datasource:
+    url: jdbc:h2:mem:kyctestdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  flyway:
+    enabled: false
+
+internal-service:
+  shared-secret: testInternalServiceSecretMustBeAtLeastThirtyTwoCharacters!
+
+services:
+  user-service:
+    url: http://localhost:8085
+
+storage:
+  upload-dir: target/test-uploads
+  encryption-key: testDocumentEncryptionKeyMustBeAtLeastThirtyTwoCharacters!
+
+kyc:
+  aadhaar-hmac-key: testAadhaarHmacKeyMustBeAtLeastThirtyTwoCharacters!
+  gateway-shared-secret: testInternalServiceSecretMustBeAtLeastThirtyTwoCharacters!
+  enforce-gateway-header: false
+
+messaging.outbox.enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

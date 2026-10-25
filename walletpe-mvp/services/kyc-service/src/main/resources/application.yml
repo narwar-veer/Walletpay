@@ -1,16 +1,56 @@
 server:
-  port: ${SERVER_PORT:8082}
+  port: ${KYC_SERVICE_PORT:8086}
+
 spring:
   application:
     name: kyc-service
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:walletpe_kyc}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${KYC_DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: ${DDL_AUTO:update}
+      ddl-auto: validate
     open-in-view: false
     properties:
-      hibernate.jdbc.time_zone: UTC
-management.endpoints.web.exposure.include: health,info
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+internal-service:
+  shared-secret: ${INTERNAL_SERVICE_SECRET}
+
+services:
+  user-service:
+    url: ${USER_SERVICE_URL}
+
+storage:
+  upload-dir: ${KYC_STORAGE_DIR}
+  encryption-key: ${KYC_DOCUMENT_ENCRYPTION_KEY}
+
+kyc:
+  aadhaar-hmac-key: ${KYC_AADHAAR_HMAC_KEY}
+  gateway-shared-secret: ${INTERNAL_SERVICE_SECRET}
+  enforce-gateway-header: ${KYC_ENFORCE_GATEWAY_HEADER:true}
+
+messaging:
+  outbox:
+    enabled: ${KYC_OUTBOX_PUBLISHER_ENABLED:true}
+    fixed-delay-ms: ${KYC_OUTBOX_PUBLISH_INTERVAL_MS:5000}
+  kafka:
+    topic: ${KYC_APPROVED_TOPIC:kyc.events.approved}
+
+spring.kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
