@@ -18,20 +18,36 @@ public class JwtTokenProvider {
     private final long tokenValidityInMilliseconds;
 
     public JwtTokenProvider(
-            @Value("${jwt.secret:defaultSecretKeyForWalletPeJwtTokensMustBeAtLeast256BitsLong!}") String secret,
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.issuer}") String issuer,
+            @Value("${jwt.audience}") String audience,
             @Value("${jwt.expiration-ms:900000}") long tokenValidityInMilliseconds) {
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalStateException("jwt.secret must be configured with at least 32 characters");
+        }
+        if (issuer == null || issuer.isBlank() || audience == null || audience.isBlank()) {
+            throw new IllegalStateException("jwt.issuer and jwt.audience must be configured");
+        }
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
+        this.issuer = issuer;
+        this.audience = audience;
     }
+
+    private final String issuer;
+    private final String audience;
 
     public String createToken(UUID userId, String email, String role) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + tokenValidityInMilliseconds);
 
         return Jwts.builder()
+                .issuer(issuer)
+                .audience().add(audience).and()
                 .subject(userId.toString())
                 .claim("email", email)
                 .claim("role", role)
+                .id(UUID.randomUUID().toString())
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(key)

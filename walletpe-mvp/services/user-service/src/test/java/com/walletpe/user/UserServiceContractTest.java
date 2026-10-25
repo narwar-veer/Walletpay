@@ -63,7 +63,7 @@ public class UserServiceContractTest {
         request.setMobileNumber("9876543210");
         request.setPassword("SecurePass123!");
 
-        mockMvc.perform(post("/api/v1/users/signup")
+        mockMvc.perform(post("/api/v1/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -93,7 +93,7 @@ public class UserServiceContractTest {
         request.setMobileNumber("9876543211");
         request.setPassword("SecurePass123!");
 
-        mockMvc.perform(post("/api/v1/users/signup")
+        mockMvc.perform(post("/api/v1/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -110,7 +110,7 @@ public class UserServiceContractTest {
         request1.setMobileNumber("9876543212");
         request1.setPassword("SecurePass123!");
 
-        mockMvc.perform(post("/api/v1/users/signup")
+        mockMvc.perform(post("/api/v1/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request1)))
                 .andExpect(status().isCreated());
@@ -122,7 +122,7 @@ public class UserServiceContractTest {
         request2.setMobileNumber("9876543213");
         request2.setPassword("SecurePass123!");
 
-        mockMvc.perform(post("/api/v1/users/signup")
+        mockMvc.perform(post("/api/v1/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request2)))
                 .andExpect(status().isBadRequest());
@@ -138,7 +138,7 @@ public class UserServiceContractTest {
         request.setMobileNumber("9876543214");
         request.setPassword("SecurePass123!");
 
-        mockMvc.perform(post("/api/v1/users/signup")
+        mockMvc.perform(post("/api/v1/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
@@ -154,7 +154,7 @@ public class UserServiceContractTest {
         verifyRequest.setEmail("charlie@example.com");
         verifyRequest.setOtp("123456");
 
-        mockMvc.perform(post("/api/v1/users/verify-email")
+        mockMvc.perform(post("/api/v1/auth/verify-email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verifyRequest)))
                 .andExpect(status().isOk())
@@ -165,7 +165,7 @@ public class UserServiceContractTest {
         assertEquals(UserStatus.ACTIVE, user.getStatus());
 
         // Verify single-use: subsequent verification with same OTP must fail
-        mockMvc.perform(post("/api/v1/users/verify-email")
+        mockMvc.perform(post("/api/v1/auth/verify-email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verifyRequest)))
                 .andExpect(status().isBadRequest());
@@ -286,11 +286,9 @@ public class UserServiceContractTest {
         ApiResponse<AuthResponse> authResponse = objectMapper.readValue(
                 loginResult.getResponse().getContentAsString(),
                 objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, AuthResponse.class));
-        String token = authResponse.getData().getToken();
-
         // Initiate mobile verification
         mockMvc.perform(post("/api/v1/users/mobile-verification/initiate")
-                        .header("Authorization", "Bearer " + token))
+                        .header("X-User-Id", user.getUserId().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
 
@@ -304,7 +302,7 @@ public class UserServiceContractTest {
         verifyReq.setOtp("777888");
 
         mockMvc.perform(post("/api/v1/users/mobile-verification/verify")
-                        .header("Authorization", "Bearer " + token)
+                        .header("X-User-Id", user.getUserId().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verifyReq)))
                 .andExpect(status().isOk())
@@ -339,11 +337,9 @@ public class UserServiceContractTest {
         ApiResponse<AuthResponse> authResponse = objectMapper.readValue(
                 loginResult.getResponse().getContentAsString(),
                 objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, AuthResponse.class));
-        String token = authResponse.getData().getToken();
-
         // Get Profile
         mockMvc.perform(get("/api/v1/users/me")
-                        .header("Authorization", "Bearer " + token))
+                        .header("X-User-Id", user.getUserId().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.name").value("Grace Hopper"))
                 .andExpect(jsonPath("$.data.email").value("grace@example.com"));
@@ -353,7 +349,7 @@ public class UserServiceContractTest {
         updateReq.setName("Admiral Grace Hopper");
 
         mockMvc.perform(patch("/api/v1/users/me")
-                        .header("Authorization", "Bearer " + token)
+                        .header("X-User-Id", user.getUserId().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateReq)))
                 .andExpect(status().isOk())

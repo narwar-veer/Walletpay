@@ -1,39 +1,46 @@
 server:
-  port: ${SERVER_PORT:8085}
+  port: ${USER_SERVICE_PORT}
 spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:walletpe_user}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: ${DDL_AUTO:update}
+      ddl-auto: ${DDL_AUTO}
     open-in-view: false
     properties:
       hibernate:
         jdbc:
           time_zone: UTC
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
-          auth: ${MAIL_SMTP_AUTH:true}
+          auth: ${MAIL_SMTP_AUTH}
           starttls:
-            enable: ${MAIL_STARTTLS_ENABLE:true}
+            enable: ${MAIL_STARTTLS_ENABLE}
             required: false
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
 app:
   mail:
-    enabled: ${MAIL_ENABLED:false}
-    from: ${MAIL_FROM:noreply@walletpe.com}
+    enabled: ${MAIL_ENABLED}
+    from: ${MAIL_FROM}
+jwt:
+  secret: ${JWT_SECRET}
+  issuer: ${JWT_ISSUER}
+  audience: ${JWT_AUDIENCE}
+  expiration-ms: ${JWT_EXPIRATION_MS}
+internal-service:
+  shared-secret: ${INTERNAL_SERVICE_SECRET}
 management:
   endpoints:
     web:

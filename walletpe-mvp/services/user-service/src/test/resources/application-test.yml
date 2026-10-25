@@ -1,3 +1,6 @@
+server:
+  port: 8085
+
 spring:
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
@@ -9,10 +12,30 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+  mail:
+    host: localhost
+    port: 25
+    username: ""
+    password: ""
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+app:
+  mail:
+    enabled: false
+    from: noreply@walletpe.com
 
 jwt:
   secret: testSuperSecretKeyForWalletPeJwtTokensMustBeAtLeast256BitsLong12345!
+  issuer: walletpe-user-service
+  audience: walletpe-api
   expiration-ms: 3600000
+internal-service:
+  shared-secret: testInternalServiceSecretMustBeAtLeastThirtyTwoCharacters!
 
 otp:
   expiration-minutes: 5

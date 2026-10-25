@@ -92,4 +92,21 @@ public class UserProfileUseCase {
 
         return ApiResponse.success("Email changed and verified successfully.", null);
     }
+
+    @Transactional
+    public ApiResponse<String> verifyMobileChange(UUID userId, String otp) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (user.getPendingMobileNumber() == null) {
+            throw new IllegalStateException("No mobile number change pending verification.");
+        }
+        if (!otpService.verifyOtp(user.getPendingMobileNumber(), OtpPurpose.MOBILE_VERIFICATION, otp)) {
+            throw new IllegalArgumentException("Invalid OTP for pending mobile verification.");
+        }
+        user.setMobileNumber(user.getPendingMobileNumber());
+        user.setPendingMobileNumber(null);
+        user.setMobileVerified(true);
+        userRepository.save(user);
+        return ApiResponse.success("Mobile number changed and verified successfully.", null);
+    }
 }

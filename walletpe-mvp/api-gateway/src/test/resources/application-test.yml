@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway-test
+
+jwt:
+  secret: testSuperSecretKeyForWalletPeJwtTokensMustBeAtLeast256BitsLong12345!
+  issuer: walletpe-user-service
+  audience: walletpe-api
+
+internal-service:
+  shared-secret: testInternalServiceSecretMustBeAtLeastThirtyTwoCharacters!
+
+cors:
+  allowed-origins: http://localhost:3000
+
+gateway:
+  trusted-proxies: 10.0.0.1,192.168.1.1
+
+services:
+  user-service:
+    url: http://localhost:8085
+  kyc-service:
+    url: http://localhost:8082
+  wallet-service:
+    url: http://localhost:8083
+  transaction-service:
+    url: http://localhost:8084

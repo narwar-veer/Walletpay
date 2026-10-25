@@ -20,7 +20,10 @@ public class UserServiceApplication {
         Path[] candidates = new Path[]{
             Paths.get(".env"),
             Paths.get("../.env"),
-            Paths.get("../../.env")
+            Paths.get("../../.env"),
+            Paths.get("config/env/.env"),
+            Paths.get("../config/env/.env"),
+            Paths.get("../../config/env/.env")
         };
 
         for (Path candidate : candidates) {
