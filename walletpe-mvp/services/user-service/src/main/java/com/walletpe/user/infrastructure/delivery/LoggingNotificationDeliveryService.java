@@ -120,6 +120,8 @@ public class LoggingNotificationDeliveryService implements NotificationDeliveryS
 
     @Override
     public void sendSms(String mobileNumber, String message) {
-        log.info("[NotificationDelivery] SMS notification requested for mobile: {}", mobileNumber);
+        log.info("================================================================================");
+        log.info("[NotificationDelivery] [SMS SIMULATION] Mobile: {} | {}", mobileNumber, message);
+        log.info("================================================================================");
     }
 }
