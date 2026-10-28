@@ -1,2 +1,232 @@
-# Intentionally empty: PostgreSQL runs on the host and is managed through pgAdmin.
-services: {}
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: walletpe-api-gateway
+    restart: unless-stopped
+    ports:
+      - "${SERVER_PORT:-8082}:${SERVER_PORT:-8082}"
+    environment:
+      - SERVER_PORT=${SERVER_PORT:-8082}
+      - GATEWAY_PORT=${SERVER_PORT:-8082}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER:-walletpe-user-service}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-walletpe-api}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      - GATEWAY_TRUSTED_PROXIES=${GATEWAY_TRUSTED_PROXIES:-*}
+      - USER_SERVICE_URL=http://user-service:8085
+      - KYC_SERVICE_URL=http://kyc-service:8086
+      
+      - WALLET_SERVICE_URL=http://wallet-service:8083
+      - TRANSACTION_SERVICE_URL=http://transaction-service:8084
+    networks:
+      - public-net
+      - internal-net
+    depends_on:
+      redis:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      kyc-service:
+        condition: service_started
+      wallet-service:
+        condition: service_started
+
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: walletpe-user-service
+    restart: unless-stopped
+    expose:
+      - "8085"
+    environment:
+      - USER_SERVICE_PORT=8085
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-walletpe_user}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DDL_AUTO=${DDL_AUTO:-update}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ISSUER=${JWT_ISSUER:-walletpe-user-service}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-walletpe-api}
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-900000}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+      - MAIL_SMTP_AUTH=${MAIL_SMTP_AUTH:-true}
+      - MAIL_STARTTLS_ENABLE=${MAIL_STARTTLS_ENABLE:-true}
+      - MAIL_ENABLED=${MAIL_ENABLED:-false}
+      - MAIL_FROM=${MAIL_FROM:-noreply@walletpe.com}
+    networks:
+      - internal-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  kyc-service:
+    build:
+      context: ./services/kyc-service
+      dockerfile: Dockerfile
+    container_name: walletpe-kyc-service
+    restart: unless-stopped
+    expose:
+      - "8086"
+    environment:
+      - KYC_SERVICE_PORT=8086
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - KYC_DB_NAME=${KYC_DB_NAME:-walletpe_kyc}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DDL_AUTO=${DDL_AUTO:-update}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - USER_SERVICE_URL=http://user-service:8085
+      - KYC_STORAGE_DIR=/app/uploads/kyc
+      - KYC_DOCUMENT_ENCRYPTION_KEY=${KYC_DOCUMENT_ENCRYPTION_KEY:-${INTERNAL_SERVICE_SECRET}}
+      - KYC_AADHAAR_HMAC_KEY=${KYC_AADHAAR_HMAC_KEY:-${INTERNAL_SERVICE_SECRET}}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KYC_OUTBOX_PUBLISHER_ENABLED=${KYC_OUTBOX_PUBLISHER_ENABLED:-true}
+    volumes:
+      - kyc-storage:/app/uploads/kyc
+    networks:
+      - internal-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+
+  wallet-service:
+    build:
+      context: ./services/wallet-service
+      dockerfile: Dockerfile
+    container_name: walletpe-wallet-service
+    restart: unless-stopped
+    expose:
+      - "8083"
+    environment:
+      - WALLET_SERVICE_PORT=8083
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - WALLET_DB_NAME=${WALLET_DB_NAME:-walletpe_wallet}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DDL_AUTO=${DDL_AUTO:-update}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - WALLET_KAFKA_CONSUMER_ENABLED=true
+      - KYC_APPROVED_TOPIC=kyc.events.approved
+    networks:
+      - internal-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: walletpe-kafka
+    restart: unless-stopped
+    expose:
+      - "9092"
+    environment:
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
+      - CLUSTER_ID=4L622nShTZaBtMVipX8unc
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - internal-net
+    volumes:
+      - kafka-data:/tmp/kraft-combined-logs
+
+  kafka-init:
+    image: apache/kafka:3.8.0
+    container_name: walletpe-kafka-init
+    restart: "no"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - internal-net
+    command: >
+      /bin/sh -c "
+      echo 'Provisioning Kafka topics...' &&
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic kyc.events.approved --partitions 3 --replication-factor 1 &&
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic kyc.events.approved.DLT --partitions 3 --replication-factor 1 &&
+      echo 'Kafka topics provisioned successfully.'
+      "
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: walletpe-postgres
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-dbs.sql:/docker-entrypoint-initdb.d/init-dbs.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal-net
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: walletpe-redis
+    restart: unless-stopped
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal-net
+
+volumes:
+  postgres-data:
+  kyc-storage:
+  kafka-data:
+
+networks:
+  public-net:
+    driver: bridge
+  internal-net:
+    driver: bridge

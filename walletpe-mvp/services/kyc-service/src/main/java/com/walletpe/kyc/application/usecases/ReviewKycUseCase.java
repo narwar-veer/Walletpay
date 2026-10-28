@@ -66,10 +66,11 @@ public class ReviewKycUseCase {
             Map<String, Object> payloadMap = new LinkedHashMap<>();
             payloadMap.put("eventId", eventId.toString());
             payloadMap.put("eventType", "KYC_APPROVED");
+            payloadMap.put("eventVersion", 1);
             payloadMap.put("kycId", application.getKycId().toString());
             payloadMap.put("userId", application.getUserId().toString());
             payloadMap.put("reviewerId", adminId.toString());
-            payloadMap.put("occurredAt", now.toString());
+            payloadMap.put("occurredAt", clock.instant().toString());
             payloadMap.put("correlationId", correlationId != null ? correlationId : UUID.randomUUID().toString());
 
             String payloadJson;

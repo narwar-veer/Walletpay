@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
 
@@ -21,21 +21,28 @@ public class KycEventPublisher {
     private final KycOutboxRepository repository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final String approvedTopic;
+    private final TransactionTemplate transactionTemplate;
 
     public KycEventPublisher(KycOutboxRepository repository, KafkaTemplate<String, String> kafkaTemplate,
-                             @Value("${messaging.kafka.topic}") String approvedTopic) {
+                             @Value("${messaging.kafka.topic}") String approvedTopic,
+                             TransactionTemplate transactionTemplate) {
         this.repository = repository;
         this.kafkaTemplate = kafkaTemplate;
         this.approvedTopic = approvedTopic;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @Scheduled(fixedDelayString = "${messaging.outbox.fixed-delay-ms:5000}")
     public void publishPending() {
-        repository.findTop50ByStatusOrderByCreatedAtAsc("PENDING").forEach(this::publishOne);
+        repository.findTop50ByStatusOrderByCreatedAtAsc("PENDING")
+                .forEach(event -> transactionTemplate.executeWithoutResult(status -> publishOne(event.getEventId())));
     }
 
-    @Transactional
-    void publishOne(KycOutboxEvent event) {
+    void publishOne(java.util.UUID eventId) {
+        KycOutboxEvent event = repository.findById(eventId).orElse(null);
+        if (event == null || !"PENDING".equals(event.getStatus())) {
+            return;
+        }
         event.incrementAttemptCount();
         try {
             kafkaTemplate.send(approvedTopic, event.getPartitionKey(), event.getPayload()).get();
